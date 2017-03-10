@@ -1,0 +1,149 @@
+<html>
+
+<head>
+<title>How Far Doth the Water Flow?</title>
+</head>
+
+<body>
+<h2><center><b>How Far Doth the Water Flow?</b></center></h2>
+<br>
+<p>This report pulls the latest water data for California. We will compare the water access and use of different regions and counties by visualizing locations, current levels, and storage capacities of California's various reservoirs as well as California's water usage, price and populations (by county or region).</p>
+<!--begin.rcode echo=FALSE, include=FALSE
+require(plyr)
+require(ggplot2)
+require(ggmap)
+require(mapdata)
+require(reshape2)
+require(tm)
+
+options(scipen=99999)
+
+setwd('~/Documents/cmps263/final project/')
+
+res_meta = read.csv("reservoir_metadata.csv")
+res_tots = read.csv("area_reservoir_totals_forr.csv")
+county_pop = read.csv("california_population_est.csv")
+county_usg = read.csv("usco2010_cal_waterusage_est_bycounty.csv")
+
+###graphing data
+keeps = c('county', 'operations_agency', 'latitude', 'longitude')
+resmeta_latlon = res_meta[,names(res_meta) %in% keeps]
+
+#melt cols, X2016_1000_af, X2017_1000_af
+year_keeps <- c('area', 'X2016_1000_af', 'X2017_1000_af')
+year_res_tots = res_tots[,names(res_tots) %in% year_keeps]
+year_res_melt = melt(year_res_tots, id=c('area'))
+
+#melt cols perc_ave, perc_cap
+perc_keeps <- c('area', 'perc_ave', 'perc_cap')
+perc_res_tots = res_tots[,names(res_tots) %in% perc_keeps]
+perc_res_melt = melt(perc_res_tots, id=c('area'))
+
+color_palette = c("#3399FF", "#33CC00")
+
+#populations per county                  
+county_map <- map_data("county")
+county_map_ca = subset(county_map, region=='california')
+state_map <- map_data("state")
+state_map_ca = subset(state_map, region=='california')
+county_pop$subregion = trimws(removeWords(tolower(county_pop$County), 'county'))
+county_pop$region = 'california'
+
+ca_pop_map <- merge(county_map_ca, county_pop, by.x=c("region", "subregion"),
+                  by.y=c("region", "subregion"))
+
+#usg per county 2010
+county_usg$subregion = trimws(removeWords(tolower(county_usg$COUNTY), 'county'))
+county_usg$region = 'california'
+
+ca_usg_map <- merge(county_map_ca, county_usg, by.x=c('region', 'subregion'),
+                    by.y=c("region", "subregion"), all.x=TRUE)
+end.rcode-->
+
+<center>
+<h2>Location of California Reservoirs</h2></center>
+
+<!--begin.rcode echo=FALSE, fig.width=8, fig.height=6
+# getting the map
+mapcali <- get_map(location = "California", 
+                      zoom = 6, scale = 2)
+
+#plotting the map with some points on it
+plot_res <- ggmap(mapcali) + geom_point(data = resmeta_latlon, aes(x = longitude, y = latitude, 
+                                                  fill = 'red', 
+                                                  alpha = 0.8), 
+                       size = 2, shape = 21) +
+            guides(fill=FALSE, alpha=FALSE, size=FALSE)
+plot(plot_res)
+end.rcode-->
+<br>
+<div class="col2">
+
+<!--begin.rcode echo=FALSE
+plot_restotals <- ggplot(data=res_tots, aes(x=factor(area), y=num_resr)) + 
+  geom_bar(stat = "identity", fill="#3399FF") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle("Number of Reservoirs per Region")
+plot(plot_restotals)
+end.rcode-->
+
+
+ <!--begin.rcode echo=FALSE
+# plot_res20167 <- ggplot(data=year_res_melt, aes(x=factor(area), y=value, fill=variable)) +
+#                    geom_bar(stat = 'identity', position='dodge') +
+#                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#                       scale_fill_manual(values=color_palette) +
+#                         ggtitle("Reservoir Totals from 2016 and 2017")
+# plot(plot_res20167)
+# end.rcode-->
+
+<!--begin.rcode echo=FALSE
+plot_percres <- ggplot(perc_res_melt, aes(x=factor(area), y=value, fill=variable)) +
+                  geom_bar(stat='identity', position='dodge') +
+                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                      scale_fill_manual(values=color_palette) +
+                        ggtitle("Current Levels as Percent of Average and Percent of Capacity per Region")
+plot(plot_percres)
+end.rcode-->
+</div>
+
+<div class="col2">
+<h2>Estimated County Population 2015</h2>
+<h4>(based on 2010 census)</h4>
+<!--begin.rcode echo=FALSE
+final_map <- ggplot(ca_pop_map, aes(x=long, y=lat, group=group)) +
+  geom_polygon(aes(fill=Population)) +
+  expand_limits(x = ca_pop_map$long, y = ca_pop_map$lat) +
+  coord_map("polyconic") + 
+  geom_path( data = state_map_ca , colour = "white") + 
+  ggtitle("Estimated Population for 2015 by County")
+plot(final_map)
+end.rcode-->
+
+<h2>Water Usage per County</h2>
+<h4>(based on USGS 2010 calculations)</h4>
+<!--begin.rcode echo=FALSE
+usg_map <- ggplot(ca_usg_map, aes(x=long, y=lat, group=group)) +
+            geom_polygon(aes(fill=DO.TOTAL)) +
+            expand_limits(x = ca_pop_map$long, y = ca_pop_map$lat) +
+            coord_map("polyconic") + 
+            geom_path( data = state_map_ca , colour = "white") + 
+            ggtitle("Water Usage per County for 2010")
+plot(usg_map)
+end.rcode-->
+</div>
+</body>
+
+<style>
+  .col2 {
+    columns: 2 250px;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 250px; /* chrome, safari */
+    -moz-columns: 2 250px;    /* firefox */
+  }
+  .col3 {
+    columns: 3 200px;
+    -webkit-columns: 3 200px;
+    -moz-columns: 3 200px;
+  }
+</style>
+</html>
