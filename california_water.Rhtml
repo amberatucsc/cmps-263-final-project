@@ -1,13 +1,13 @@
 <html>
 
 <head>
-<title>How Far Doth the Water Flow?</title>
+<title>Cal Water</title>
 </head>
 
 <body>
-<h2><center><b>How Far Doth the Water Flow?</b></center></h2>
+<h2><center><b>Current Levels of California Reservoirs</b></center></h2>
 <br>
-<p>This report pulls the latest water data for California. We will compare the water access and use of different regions and counties by visualizing locations, current levels, and storage capacities of California's various reservoirs as well as California's water usage, price and populations (by county or region).</p>
+<p>This report pulls the latest reservoir water data for California. We map the counties covered per hydrologic region as well as the reservoirs within those hydrologic regions. We also scraped the current levels per region (as of mid February).<br> A hydrologic region is a geographic area defined by a water basin or shed or other distinct geographic feature (like river, lake, etc).</p>
 <!--begin.rcode echo=FALSE, include=FALSE
 require(plyr)
 require(ggplot2)
@@ -23,7 +23,9 @@ setwd('~/Documents/cmps263/final project/')
 res_meta = read.csv("reservoir_metadata.csv")
 res_tots = read.csv("area_reservoir_totals_forr.csv")
 county_pop = read.csv("california_population_est.csv")
-county_usg = read.csv("usco2010_cal_waterusage_est_bycounty.csv")
+#county_usg = read.csv("usco2010_cal_waterusage_est_bycounty.csv")
+hyrologic = read.csv("ca_county_hydrologicregion.csv")
+hydrologic_coll = read.csv("hydrologic_counties_overlap.csv")
 
 ###graphing data
 keeps = c('county', 'operations_agency', 'latitude', 'longitude')
@@ -39,7 +41,7 @@ perc_keeps <- c('area', 'perc_ave', 'perc_cap')
 perc_res_tots = res_tots[,names(res_tots) %in% perc_keeps]
 perc_res_melt = melt(perc_res_tots, id=c('area'))
 
-color_palette = c("#3399FF", "#33CC00")
+color_palette = c("#cccccc", "#333333")
 
 #populations per county                  
 county_map <- map_data("county")
@@ -53,85 +55,96 @@ ca_pop_map <- merge(county_map_ca, county_pop, by.x=c("region", "subregion"),
                   by.y=c("region", "subregion"))
 
 #usg per county 2010
-county_usg$subregion = trimws(removeWords(tolower(county_usg$COUNTY), 'county'))
-county_usg$region = 'california'
+#county_usg$subregion = trimws(removeWords(tolower(county_usg$COUNTY), 'county'))
+#county_usg$region = 'california'
 
-ca_usg_map <- merge(county_map_ca, county_usg, by.x=c('region', 'subregion'),
-                    by.y=c("region", "subregion"), all.x=TRUE)
+#ca_usg_map <- merge(county_map_ca, county_usg, by.x=c('region', 'subregion'),
+#                    by.y=c("region", "subregion"), all.x=TRUE)
+
+#hydrologic data
+hyrologic$subregion = hyrologic$county
+hyrologic$region = 'california'
+
+ca_hyr_map <- merge(county_map_ca, hyrologic, by.x=c("region", "subregion"),
+                  by.y=c("region", "subregion"))
+
+hydrologic_csmall = hydrologic_coll[,names(hydrologic_coll) %in% c('long', 'lat', 'direction')]
+names(resmeta_latlon) = c("lat", "long", "county")
+resmeta_latlon$subregion = trimws(tolower(resmeta_latlon$county))
+resmeta_latlon = resmeta_latlon[resmeta_latlon$subregion %in% county_map_ca$subregion,]
+
+hydro_palette <- c("#33CCFF", "#99CCFF", "#CC66CC", "#CC0033", "#FF66CC",
+                    "#CCCCCC", "#FF99CC", "#3399FF", "#336699", "#0066FF")
 end.rcode-->
 
-<center>
-<h2>Location of California Reservoirs</h2></center>
-
-<!--begin.rcode echo=FALSE, fig.width=8, fig.height=6
-# getting the map
-mapcali <- get_map(location = "California", 
-                      zoom = 6, scale = 2)
-
-#plotting the map with some points on it
-plot_res <- ggmap(mapcali) + geom_point(data = resmeta_latlon, aes(x = longitude, y = latitude, 
-                                                  fill = 'red', 
-                                                  alpha = 0.8), 
-                       size = 2, shape = 21) +
-            guides(fill=FALSE, alpha=FALSE, size=FALSE)
-plot(plot_res)
-end.rcode-->
-<br>
 <div class="col2">
-
+<h4>Location of California Reservoirs and Hydrologic Regions wrt County lines</h4>
 <!--begin.rcode echo=FALSE
-plot_restotals <- ggplot(data=res_tots, aes(x=factor(area), y=num_resr)) + 
-  geom_bar(stat = "identity", fill="#3399FF") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle("Number of Reservoirs per Region")
-plot(plot_restotals)
+final_map <- ggplot(ca_hyr_map, aes(x=long, y=lat, group=group)) +
+  geom_polygon(aes(fill=hydrologic_region)) + scale_fill_manual(values=hydro_palette) +
+  expand_limits(x = ca_hyr_map$long, y = ca_hyr_map$lat) +
+  coord_map("polyconic") + 
+  geom_path( data = state_map_ca , colour = "white") + 
+  #ggtitle("California Water Supply: Hydrologic Regions and Reservoirs") +
+  scale_shape_identity() +
+  #geom_point(data=hydrologic_csmall, inherit.aes = F, aes(x=long, y=lat, shape=18)) + 
+  geom_point(data=resmeta_latlon, inherit.aes = F, aes(x=long, y=lat, shape=21)) +
+  theme(legend.position = "bottom", panel.background =  element_rect(fill = "#ccffff"))
+plot(final_map)
 end.rcode-->
 
-
- <!--begin.rcode echo=FALSE
-# plot_res20167 <- ggplot(data=year_res_melt, aes(x=factor(area), y=value, fill=variable)) +
-#                    geom_bar(stat = 'identity', position='dodge') +
-#                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-#                       scale_fill_manual(values=color_palette) +
-#                         ggtitle("Reservoir Totals from 2016 and 2017")
-# plot(plot_res20167)
-# end.rcode-->
-
+<h4>Reservoir Levels as a Percentage of Average and Capacity <br>per Hydrologic Region</h4>
 <!--begin.rcode echo=FALSE
 plot_percres <- ggplot(perc_res_melt, aes(x=factor(area), y=value, fill=variable)) +
                   geom_bar(stat='identity', position='dodge') +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                       scale_fill_manual(values=color_palette) +
-                        ggtitle("Current Levels as Percent of Average and Percent of Capacity per Region")
+                        #ggtitle("Current Levels as Percent of Average and Percent of Capacity per Region") + 
+  theme(panel.background = element_rect(fill = "#ffffff"), panel.grid.major = element_line(colour = "black"))
 plot(plot_percres)
 end.rcode-->
 </div>
 
 <div class="col2">
-<h2>Estimated County Population 2015</h2>
-<h4>(based on 2010 census)</h4>
+<h4>California Population, 2015 estimate</h4>
+<h5>estimate based on 2010 census</h5>
 <!--begin.rcode echo=FALSE
-final_map <- ggplot(ca_pop_map, aes(x=long, y=lat, group=group)) +
+pop_map <- ggplot(ca_pop_map, aes(x=long, y=lat, group=group)) +
   geom_polygon(aes(fill=Population)) +
   expand_limits(x = ca_pop_map$long, y = ca_pop_map$lat) +
   coord_map("polyconic") + 
   geom_path( data = state_map_ca , colour = "white") + 
-  ggtitle("Estimated Population for 2015 by County")
-plot(final_map)
+  #ggtitle("California Population per County") +
+  theme(panel.background =  element_rect(fill = "#ccffff"))
+plot(pop_map)
 end.rcode-->
-
-<h2>Water Usage per County</h2>
-<h4>(based on USGS 2010 calculations)</h4>
+<h4>California Population per Hydrologic Region</h4>
+<h5>(based on 2015 estimate)</h5>
 <!--begin.rcode echo=FALSE
-usg_map <- ggplot(ca_usg_map, aes(x=long, y=lat, group=group)) +
-            geom_polygon(aes(fill=DO.TOTAL)) +
-            expand_limits(x = ca_pop_map$long, y = ca_pop_map$lat) +
-            coord_map("polyconic") + 
-            geom_path( data = state_map_ca , colour = "white") + 
-            ggtitle("Water Usage per County for 2010")
-plot(usg_map)
+hydro_pop <- merge(hyrologic, county_pop, by=c('region', 'subregion'))
+hydro_pop_ddply = ddply(hydro_pop, .(hydrologic_region), summarise, population = sum(Population))
+
+hydro_pop_bar <- ggplot(hydro_pop_ddply, aes(x=factor(hydrologic_region), y=population)) +
+          geom_bar(stat='identity', fill='#333333') + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  ggtitle("Population per Hydrologic Region") + geom_text(aes(label=population), position=position_dodge(width=0.9), vjust=-0.25) +
+  theme(panel.background = element_rect(fill = "#ffffff"), legend.position="none")
+plot(hydro_pop_bar)
 end.rcode-->
 </div>
+<div>
+<p><b>Amber O'Connell: aoconnel@ucsc.edu<br>UCSC CMPS 263 Winter 2017, Dr. Suresh Lodha</b></p>
+
+<h4>Citations</h4>
+<ul>
+    <li>California Dept of Water Resources</li>
+      <ul> <li><a href="https://cdec.water.ca.gov/cgi-progs/reservoirs/STORSUM", target="_blank">Summary of Storage in Major Reservoirs</a> (February 21, 2017)</li>
+           <li><a href="http://cdec.water.ca.gov/misc/monthly_res.html", target="_blank">End of Month Reservoir Storage</a> (February 28, 2017)</li>
+      </ul>
+    <li><a href="http://www.ppic.org/main/mapdetail.asp?i=1576", target="_blank">PPIC: California Hydrologic Regions and Counties</a></li>
+    <li><a href="http://www.california-demographics.com/counties_by_population", target="_blank">California Demographics by Cubit: California Population by Counties</a></li>
+</ul>
+</div>
+
 </body>
 
 <style>

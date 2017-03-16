@@ -63,44 +63,45 @@
   font-weight: bold;
 }
 </style>
-<title>How Far Doth the Water Flow?</title>
+<title>Cal Water</title>
 </head>
 
 <body>
-<h2><center><b>How Far Doth the Water Flow?</b></center></h2>
+<h2><center><b>Current Levels of California Reservoirs</b></center></h2>
 <br>
-<p>This report pulls the latest water data for California. We will compare the water access and use of different regions and counties by visualizing locations, current levels, and storage capacities of California's various reservoirs as well as California's water usage, price and populations (by county or region).</p>
+<p>This report pulls the latest reservoir water data for California. We map the counties covered per hydrologic region as well as the reservoirs within those hydrologic regions. We also scraped the current levels per region (as of mid February).<br> A hydrologic region is a geographic area defined by a water basin or shed or other distinct geographic feature (like river, lake, etc).</p>
 
 
-<center>
-<h2>Location of California Reservoirs</h2></center>
-
-<div class="chunk" id="unnamed-chunk-2"><div class="rcode"><div class="message"><pre class="knitr r">## Map from URL : http://maps.googleapis.com/maps/api/staticmap?center=California&amp;zoom=6&amp;size=640x640&amp;scale=2&amp;maptype=terrain&amp;language=en-EN&amp;sensor=false
-</pre></div>
-<div class="message"><pre class="knitr r">## Information from URL : http://maps.googleapis.com/maps/api/geocode/json?address=California&amp;sensor=false
-</pre></div>
-<div class="warning"><pre class="knitr r">## Warning: Removed 4 rows containing missing values (geom_point).
-</pre></div>
-</div><div class="rimage default"><img src="figure/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" class="plot" /></div></div>
-<br>
 <div class="col2">
+<h4>Location of California Reservoirs and Hydrologic Regions wrt County lines</h4>
+<div class="chunk" id="unnamed-chunk-2"><div class="rimage default"><img src="figure/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" class="plot" /></div></div>
 
+<h4>Reservoir Levels as a Percentage of Average and Capacity <br>per Hydrologic Region</h4>
 <div class="chunk" id="unnamed-chunk-3"><div class="rimage default"><img src="figure/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" class="plot" /></div></div>
+</div>
 
-
-
+<div class="col2">
+<h4>California Population, 2015 estimate</h4>
+<h5>estimate based on 2010 census</h5>
+<div class="chunk" id="unnamed-chunk-4"><div class="rimage default"><img src="figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" class="plot" /></div></div>
+<h4>California Population per Hydrologic Region</h4>
+<h5>(based on 2015 estimate)</h5>
 <div class="chunk" id="unnamed-chunk-5"><div class="rimage default"><img src="figure/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" class="plot" /></div></div>
 </div>
+<div>
+<p><b>Amber O'Connell: aoconnel@ucsc.edu<br>UCSC CMPS 263 Winter 2017, Dr. Suresh Lodha</b></p>
 
-<div class="col2">
-<h2>Estimated County Population 2015</h2>
-<h4>(based on 2010 census)</h4>
-<div class="chunk" id="unnamed-chunk-6"><div class="rimage default"><img src="figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" class="plot" /></div></div>
-
-<h2>Water Usage per County</h2>
-<h4>(based on USGS 2010 calculations)</h4>
-<div class="chunk" id="unnamed-chunk-7"><div class="rimage default"><img src="figure/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" class="plot" /></div></div>
+<h4>Citations</h4>
+<ul>
+    <li>California Dept of Water Resources</li>
+      <ul> <li><a href="https://cdec.water.ca.gov/cgi-progs/reservoirs/STORSUM", target="_blank">Summary of Storage in Major Reservoirs</a> (February 21, 2017)</li>
+           <li><a href="http://cdec.water.ca.gov/misc/monthly_res.html", target="_blank">End of Month Reservoir Storage</a> (February 28, 2017)</li>
+      </ul>
+    <li><a href="http://www.ppic.org/main/mapdetail.asp?i=1576", target="_blank">PPIC: California Hydrologic Regions and Counties</a></li>
+    <li><a href="http://www.california-demographics.com/counties_by_population", target="_blank">California Demographics by Cubit: California Population by Counties</a></li>
+</ul>
 </div>
+
 </body>
 
 <style>
