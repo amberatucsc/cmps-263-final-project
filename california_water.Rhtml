@@ -79,6 +79,7 @@ end.rcode-->
 
 <div class="col2">
 <h4>Location of California Reservoirs and Hydrologic Regions wrt County lines</h4>
+<p>where &#9675; denotes a reservoir</p>
 <!--begin.rcode echo=FALSE
 final_map <- ggplot(ca_hyr_map, aes(x=long, y=lat, group=group)) +
   geom_polygon(aes(fill=hydrologic_region)) + scale_fill_manual(values=hydro_palette) +
@@ -93,7 +94,9 @@ final_map <- ggplot(ca_hyr_map, aes(x=long, y=lat, group=group)) +
 plot(final_map)
 end.rcode-->
 
-<h4>Reservoir Levels as a Percentage of Average and Capacity <br>per Hydrologic Region</h4>
+<h4>Reservoir Levels as a Percentage of Average and Capacity per Hydrologic Region</h4>
+<p>Grey is the percentage comparison of this years current level as it relates to the average.
+Black is the percentage comparision of this years current level as it relates to the total capacity of the region.</p>
 <!--begin.rcode echo=FALSE
 plot_percres <- ggplot(perc_res_melt, aes(x=factor(area), y=value, fill=variable)) +
                   geom_bar(stat='identity', position='dodge') +
@@ -126,7 +129,7 @@ hydro_pop_ddply = ddply(hydro_pop, .(hydrologic_region), summarise, population =
 
 hydro_pop_bar <- ggplot(hydro_pop_ddply, aes(x=factor(hydrologic_region), y=population)) +
           geom_bar(stat='identity', fill='#333333') + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  ggtitle("Population per Hydrologic Region") + geom_text(aes(label=population), position=position_dodge(width=0.9), vjust=-0.25) +
+  geom_text(aes(label=population), position=position_dodge(width=0.9), vjust=-0.25) +
   theme(panel.background = element_rect(fill = "#ffffff"), legend.position="none")
 plot(hydro_pop_bar)
 end.rcode-->
