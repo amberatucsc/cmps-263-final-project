@@ -11,8 +11,8 @@
 <!--begin.rcode echo=FALSE, include=FALSE
 require(plyr)
 require(ggplot2)
-require(ggmap)
-require(mapdata)
+#require(ggmap)
+#require(mapdata)
 require(reshape2)
 require(tm)
 
@@ -25,7 +25,7 @@ res_tots = read.csv("area_reservoir_totals_forr.csv")
 county_pop = read.csv("california_population_est.csv")
 #county_usg = read.csv("usco2010_cal_waterusage_est_bycounty.csv")
 hyrologic = read.csv("ca_county_hydrologicregion.csv")
-hydrologic_coll = read.csv("hydrologic_counties_overlap.csv")
+#hydrologic_coll = read.csv("hydrologic_counties_overlap.csv")
 
 ###graphing data
 keeps = c('county', 'operations_agency', 'latitude', 'longitude')
@@ -54,13 +54,6 @@ county_pop$region = 'california'
 ca_pop_map <- merge(county_map_ca, county_pop, by.x=c("region", "subregion"),
                   by.y=c("region", "subregion"))
 
-#usg per county 2010
-#county_usg$subregion = trimws(removeWords(tolower(county_usg$COUNTY), 'county'))
-#county_usg$region = 'california'
-
-#ca_usg_map <- merge(county_map_ca, county_usg, by.x=c('region', 'subregion'),
-#                    by.y=c("region", "subregion"), all.x=TRUE)
-
 #hydrologic data
 hyrologic$subregion = hyrologic$county
 hyrologic$region = 'california'
@@ -86,9 +79,7 @@ final_map <- ggplot(ca_hyr_map, aes(x=long, y=lat, group=group)) +
   expand_limits(x = ca_hyr_map$long, y = ca_hyr_map$lat) +
   coord_map("polyconic") + 
   geom_path( data = state_map_ca , colour = "white") + 
-  #ggtitle("California Water Supply: Hydrologic Regions and Reservoirs") +
   scale_shape_identity() +
-  #geom_point(data=hydrologic_csmall, inherit.aes = F, aes(x=long, y=lat, shape=18)) + 
   geom_point(data=resmeta_latlon, inherit.aes = F, aes(x=long, y=lat, shape=21)) +
   theme(legend.position = "bottom", panel.background =  element_rect(fill = "#ccffff"))
 plot(final_map)
@@ -100,29 +91,27 @@ Black is the percentage comparision of this years current level as it relates to
 <!--begin.rcode echo=FALSE
 plot_percres <- ggplot(perc_res_melt, aes(x=factor(area), y=value, fill=variable)) +
                   geom_bar(stat='identity', position='dodge') +
-                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                      scale_fill_manual(values=color_palette) +
-                        #ggtitle("Current Levels as Percent of Average and Percent of Capacity per Region") + 
-  theme(panel.background = element_rect(fill = "#ffffff"), panel.grid.major = element_line(colour = "black"))
+                  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                  scale_fill_manual(values=color_palette) +
+                  theme(panel.background = element_rect(fill = "#ffffff"), panel.grid.major = element_line(colour = "black"))
 plot(plot_percres)
 end.rcode-->
 </div>
-<p>Below we look at the California population, estimated as of 2015 based on the 2010 census, per county and per hydrologic region. What we can see below is the difficulty faced by some areas for water access. Note the current capacities within the southern areas with their respective populations. <br> If we consider that a drought is defined as a period of time with deficient rainfall as it relates to a particular environment and demand, we see that Southern California with its normally dry environment and high demand (due to high population) is more susceptible to drought and has a more difficult climb out of a drought.</p>
+<p>Below we look at the California population, estimated as of 2015 based on the 2010 census, per county and per hydrologic region. What we can see below is the difficulty faced by some areas for water access. Note the current capacities within the southern areas with their respective populations. <br> If we consider that a drought is defined as a period of time with deficient rainfall as it relates to a particular environment and demand, we see that Southern California, with its normally dry environment and high demand (due to high population), is more susceptible to drought and has a more difficult climb out of a drought.</p>
 <div class="col2">
 <h4>California Population, 2015 estimate</h4>
-<h5>estimate based on 2010 census</h5>
+<p>estimate based on 2010 census</p>
 <!--begin.rcode echo=FALSE
 pop_map <- ggplot(ca_pop_map, aes(x=long, y=lat, group=group)) +
   geom_polygon(aes(fill=Population)) +
   expand_limits(x = ca_pop_map$long, y = ca_pop_map$lat) +
   coord_map("polyconic") + 
   geom_path( data = state_map_ca , colour = "white") + 
-  #ggtitle("California Population per County") +
   theme(panel.background =  element_rect(fill = "#ccffff"))
 plot(pop_map)
 end.rcode-->
 <h4>California Population per Hydrologic Region</h4>
-<h5>(based on 2015 estimate)</h5>
+<p>(based on 2015 estimate)</p>
 <!--begin.rcode echo=FALSE
 hydro_pop <- merge(hyrologic, county_pop, by=c('region', 'subregion'))
 hydro_pop_ddply = ddply(hydro_pop, .(hydrologic_region), summarise, population = sum(Population))
@@ -135,7 +124,7 @@ plot(hydro_pop_bar)
 end.rcode-->
 </div>
 <div>
-<p><b>Amber O'Connell: aoconnel@ucsc.edu<br>UCSC CMPS 263 Winter 2017, Dr. Suresh Lodha</b></p>
+<p><b>Amber O'Connell: aoconnel@ucsc.edu</b><br><a href="https://github.com/amberatucsc/cmps-263-final-project", target="_blank">Git: amberatucsc</a><br><b>UCSC CMPS 263 Winter 2017, Dr. Suresh Lodha</b></p>
 
 <h4>Citations</h4>
 <ul>
